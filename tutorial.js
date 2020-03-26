@@ -6,7 +6,23 @@ async function main() {
   try {
     await client.connect();
 
-    await updateAllListingsToHavePropertyType(client);
+    async function deleteListingsScrapedBeforeDate(client, date) {
+      result = await client
+        .db("sample_airbnb")
+        .collection("listingsAndReviews")
+        .deleteMany({ last_scraped: { $lt: date } });
+      console.log(`${result.deletedCount} document(s) was/were deleted.`);
+    }
+
+    async function deleteListingByName(client, nameOfListing) {
+      result = await client
+        .db("sample_airbnb")
+        .collection("listingsAndReviews")
+        .deleteOne({ name: nameOfListing });
+      console.log(`${result.deletedCount} document(s) was/were deleted.`);
+    }
+
+    await deleteListingsScrapedBeforeDate(client, new Date("2019-02-15"));
 
     async function updateAllListingsToHavePropertyType(client) {
       result = await client
